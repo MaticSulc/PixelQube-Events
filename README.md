@@ -7,6 +7,5 @@ Commands:
 - /event revive (user)
 - /event help
 
-Player deaths are counted in a scoreboard, staff can revive them, join&leave is supported
 Perms:
-pixelevents.event
+- pixelevents.event
