@@ -22,9 +22,11 @@ import net.md_5.bungee.api.ChatColor;
 public class Main extends JavaPlugin implements Listener {
 
     int total = 0;
+    int online;
     boolean enabled = false;
     HashMap <String, Boolean> deaths = new HashMap <String, Boolean> ();
     HashMap <String, Boolean> revives = new HashMap <String, Boolean> ();
+    HashMap <String, Boolean> playing = new HashMap <String, Boolean> ();
 
     @Override
     public void onEnable() {
@@ -38,21 +40,30 @@ public class Main extends JavaPlugin implements Listener {
     }
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
+    	
 
-
-        if (deaths.get(e.getPlayer().getName()) == null) {
+        if (deaths.get(e.getPlayer().getName()) == null && playing.get(e.getPlayer().getName()) == true) {
             total++;
         }
-        for (Player online: Bukkit.getOnlinePlayers())
-            createScoreboard(online);
+        if(enabled) {
+	        online = Bukkit.getOnlinePlayers().size();
+	        for (Player online: Bukkit.getOnlinePlayers())
+	            createScoreboard(online);
+	        }
 
     }
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
-        total = Bukkit.getOnlinePlayers().size();
-        total--;
-        for (Player online: Bukkit.getOnlinePlayers())
-            createScoreboard(online);
+    	online = Bukkit.getOnlinePlayers().size();
+        
+    	if (deaths.get(e.getPlayer().getName()) == null) {
+            total--;
+        }
+    	if(enabled) {
+    		online = Bukkit.getOnlinePlayers().size();
+	        for (Player online: Bukkit.getOnlinePlayers())
+	            createScoreboard(online);
+	    	}
 
     }
     @EventHandler
@@ -75,11 +86,17 @@ public class Main extends JavaPlugin implements Listener {
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         obj.setDisplayName(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "PixelQube Events");
         Score score = obj.getScore(ChatColor.DARK_RED + "" + ChatColor.AQUA + "" + ChatColor.STRIKETHROUGH + "------------------");
-        score.setScore(2);
-        Score score2 = obj.getScore(ChatColor.AQUA + "» " + ChatColor.WHITE + "Players Alive: " + ChatColor.DARK_AQUA + total);
-        score2.setScore(1);
-        Score score3 = obj.getScore(ChatColor.AQUA + "" + ChatColor.STRIKETHROUGH + "------------------");
-        score3.setScore(0);
+        score.setScore(5);
+        Score score1 = obj.getScore(ChatColor.AQUA + "» " + ChatColor.WHITE + "Online: " + ChatColor.DARK_AQUA + online);
+        score1.setScore(4);
+        Score score2 = obj.getScore(ChatColor.AQUA + "» " + ChatColor.WHITE + "Alive: " + ChatColor.DARK_AQUA + total);
+        score2.setScore(3);
+        Score score3 = obj.getScore("");
+        score3.setScore(2);
+        Score score4 = obj.getScore(ChatColor.DARK_AQUA + "play.pixelqube.xyz");
+        score4.setScore(1);
+        Score score5 = obj.getScore(ChatColor.AQUA + "" + ChatColor.STRIKETHROUGH + "------------------");
+        score5.setScore(0);
         player.setScoreboard(board);
 
     }
@@ -114,8 +131,10 @@ public class Main extends JavaPlugin implements Listener {
                         if (args[0].equalsIgnoreCase("start")) {
                             enabled = true;
                             total = Bukkit.getOnlinePlayers().size();
+                            online = Bukkit.getOnlinePlayers().size();
                             for (Player online: Bukkit.getOnlinePlayers()) {
                                 createScoreboard(online);
+                                playing.put(online.getName(), true);
                                 revives.put(online.getName(), true); //initial
                                 online.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "The event has begun. Good luck!");
                             }
